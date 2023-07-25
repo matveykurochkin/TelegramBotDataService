@@ -23,20 +23,36 @@ public class APIController : ControllerBase
     {
         try
         {
-            var stream = await _storage.GetFile(date);
+            var stream = await _storage.GetLogFileByDate(date);
 
             if (stream == null)
             {
                 Logger.Info("File not found");
                 return NotFound();
             }
-            
+
             return new FileStreamResult(stream, "text/plain");
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            Logger.Error(ex, "Error Get log file");
-            return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {ex.Message}"));
+            Logger.Error(exception, "Error Get log file");
+            return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
+        }
+    }
+
+    [HttpPost("GetListAvailableLogFile")]
+    public async Task<IActionResult> GetListLogFile()
+    {
+        try
+        {
+            var fileList = await _storage.GetListAvailableLogFile();
+
+            return new JsonResult(fileList);
+        }
+        catch (Exception exception)
+        {
+            Logger.Error(exception, "Error Get list log file");
+            return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
         }
     }
 }
