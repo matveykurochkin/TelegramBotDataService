@@ -1,10 +1,10 @@
-# <p style="text-align:center;">Telegram Bot Data Service<p>
+# Telegram Bot Data Service
 
-### <p style="text-align:center;"> Описание<p>
+### Описание
 
 Telegram Bot Data Service - это сервис RESTful API, который обеспечивает взаимодействие с телеграм ботом и предоставляет возможность получать log-файлы, созданные ботом в процессе его работы. 
 
-### <p style="text-align:center;"> Функциональность<p>
+### Функциональность
 
 1. Получение логов:
 
@@ -17,3 +17,10 @@ Telegram Bot Data Service - это сервис RESTful API, который об
 * Сервис использует Swagger (OpenAPI) для документирования и предоставления интерактивной документации для API.
 
 * Клиенты могут ознакомиться с API и выполнить запросы к сервису прямо из Swagger-интерфейса.
+
+### Параметры запуска
+
+В файле appsettings.json необходимо задать параметр:
+```bash 
+ "PathDirectory": "path\\to\\your\\log\\file"
+```
