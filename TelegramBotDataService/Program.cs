@@ -1,4 +1,7 @@
+using Microsoft.Extensions.Options;
 using NLog.Web;
+using TelegramBotDataService.Configuration;
+using TelegramBotDataService.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,21 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
     serverOptions.Configure(kestrelSection);
 });
 
+builder.Host.ConfigureServices((hostBuilderContext, serviceCollection) =>
+{
+    serviceCollection.AddOptions<StorageConfiguration>()
+        .Bind(hostBuilderContext.Configuration.GetSection("Storage"));
+
+    serviceCollection.AddSingleton<FileStorage>(sp =>
+    {
+        var options = sp.GetRequiredService<IOptions<StorageConfiguration>>();
+        var storageConfiguration = options.Value;
+
+        var fileStorage = new FileStorage(storageConfiguration.Directory!);
+
+        return fileStorage;
+    });
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
