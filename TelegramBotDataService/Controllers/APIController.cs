@@ -4,6 +4,7 @@ using TelegramBotDataService.Storage;
 
 namespace TelegramBotDataService.Controllers;
 
+[Tags("Logs")]
 [Route("api")]
 [ApiController]
 // ReSharper disable once InconsistentNaming
@@ -78,6 +79,7 @@ public class APIController : ControllerBase
         }
     }
 
+    [Tags("Users")]
     [HttpGet("GetListUsers")]
     public async Task<IActionResult> GetUsers(CancellationToken cancellationToken)
     {

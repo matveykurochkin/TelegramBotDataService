@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using NLog.Web;
 using TelegramBotDataService.Configuration;
 using TelegramBotDataService.Storage;
@@ -34,7 +35,20 @@ builder.Host.ConfigureServices((hostBuilderContext, serviceCollection) =>
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(settings =>
+{
+    settings.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Schedule Bot Data Service", 
+        Version = "v1.1", 
+        Description = "Schedule Bot Data Service is a RESTful API service that provides interaction with a telegram bot and provides an opportunity to receive log files created by the bot during its operation.", 
+        Contact = new OpenApiContact
+        {
+            Name = "Matvey Kurochkin",
+            Url = new Uri("https://github.com/matveykurochkin/TelegramBotDataService")
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -42,7 +56,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(settings =>
+    {
+        settings.SwaggerEndpoint("/swagger/v1/swagger.json", "Schedule Bot Data Service API V1.1");
+    });
 }
 
 app.UseHttpsRedirection();
