@@ -66,8 +66,8 @@ public class FileStorage
     /// <summary>
     /// Метод возвращающий список доступных log-файлов, лежащих в промежутке указанных дат
     /// </summary>
-    /// <param name="dateFrom"></param>
-    /// <param name="dateTo"></param>
+    /// <param name="dateFrom">дата в формате yyyy-MM-dd</param>
+    /// <param name="dateTo">дата в формате yyyy-MM-dd</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public Task<List<string>> GetListAvailableLogFileByDate(DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken)

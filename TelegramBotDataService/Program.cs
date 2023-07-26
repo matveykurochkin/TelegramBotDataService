@@ -4,6 +4,7 @@ using NLog.Web;
 using TelegramBotDataService.Configuration;
 using TelegramBotDataService.Storage;
 
+const string appVersion = "v1.1";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -37,10 +38,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(settings =>
 {
-    settings.SwaggerDoc("v1", new OpenApiInfo
+    settings.SwaggerDoc($"{appVersion}", new OpenApiInfo
     {
         Title = "Schedule Bot Data Service", 
-        Version = "v1.1", 
+        Version = $"{appVersion}", 
         Description = "Schedule Bot Data Service is a RESTful API service that provides interaction with a telegram bot and provides an opportunity to receive log files created by the bot during its operation.", 
         Contact = new OpenApiContact
         {
@@ -58,7 +59,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(settings =>
     {
-        settings.SwaggerEndpoint("/swagger/v1/swagger.json", "Schedule Bot Data Service API V1.1");
+        settings.SwaggerEndpoint($"/swagger/{appVersion}/swagger.json", $"Schedule Bot Data Service API {appVersion}");
     });
 }
 
