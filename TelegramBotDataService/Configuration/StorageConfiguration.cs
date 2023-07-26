@@ -7,5 +7,6 @@ public class StorageConfiguration
 
 public class FileStorageConfiguration
 {
-    public string? PathDirectory { get; init; }
+    public string? PathDirectoryToLog { get; init; }
+    public string? PathDirectoryToListUsers { get; init; }
 }
