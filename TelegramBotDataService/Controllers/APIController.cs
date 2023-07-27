@@ -22,6 +22,7 @@ public class APIController : ControllerBase
     [HttpGet("GetLogFileByDate")]
     public async Task<IActionResult> GetLogFile(DateTime date, CancellationToken cancellationToken)
     {
+        Logger.Info("Start method: {0} in API Controller", nameof(GetLogFile));
         try
         {
             var stream = await _storage.GetLogFileByDate(date, cancellationToken);
@@ -31,7 +32,8 @@ public class APIController : ControllerBase
                 Logger.Info("File not found");
                 return NotFound();
             }
-
+            
+            Logger.Info("Method: {0} in API Controller completed successfully", nameof(GetLogFile));
             return new FileStreamResult(stream, "text/plain");
         }
         catch (Exception exception)
@@ -44,10 +46,12 @@ public class APIController : ControllerBase
     [HttpPost("GetListAvailableLogFile")]
     public async Task<IActionResult> GetListLogFile(CancellationToken cancellationToken)
     {
+        Logger.Info("Start method: {0} in API Controller", nameof(GetListLogFile));
         try
         {
             var fileList = await _storage.GetListAvailableLogFile(cancellationToken);
-
+            
+            Logger.Info("Method: {0} in API Controller completed successfully", nameof(GetListLogFile));
             return new JsonResult(fileList);
         }
         catch (Exception exception)
@@ -60,16 +64,18 @@ public class APIController : ControllerBase
     [HttpPost("GetListAvailableLogFileByDate")]
     public async Task<IActionResult> GetListLogFileByDate(DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken)
     {
+        Logger.Info("Start method: {0} in API Controller", nameof(GetListLogFileByDate));
         try
         {
             if (dateFrom > dateTo)
             {
-                Logger.Error("dateFrom larger dateTo");
+                Logger.Trace("dateFrom larger dateTo");
                 return BadRequest();
             }
 
             var fileListByDate = await _storage.GetListAvailableLogFileByDate(dateFrom, dateTo, cancellationToken);
-
+            
+            Logger.Info("Method: {0} in API Controller completed successfully", nameof(GetListLogFileByDate));
             return new JsonResult(fileListByDate);
         }
         catch (Exception exception)
@@ -83,6 +89,7 @@ public class APIController : ControllerBase
     [HttpGet("GetListUsers")]
     public async Task<IActionResult> GetUsers(CancellationToken cancellationToken)
     {
+        Logger.Info("Start method: {0} in API Controller", nameof(GetUsers));
         try
         {
             var stream = await _storage.GetListUsers(cancellationToken);
@@ -93,11 +100,12 @@ public class APIController : ControllerBase
                 return NotFound();
             }
 
+            Logger.Info("Method: {0} in API Controller completed successfully", nameof(GetUsers));
             return new FileStreamResult(stream, "text/plain");
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, "Error in method: {0}", nameof(GetUsers));
+            Logger.Error(exception, "Error in method: {0} in API Controller", nameof(GetUsers));
             return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
         }
     }
