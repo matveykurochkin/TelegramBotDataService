@@ -5,9 +5,9 @@ namespace TelegramBotDataService.Storage;
 
 public class ServiceLogStorage : ILogStorage
 {
-    private readonly FileStorageConfiguration _configuration;
+    private readonly PathConfiguration _configuration;
 
-    public ServiceLogStorage(FileStorageConfiguration configuration)
+    public ServiceLogStorage(PathConfiguration configuration)
     {
         _configuration = configuration;
     }

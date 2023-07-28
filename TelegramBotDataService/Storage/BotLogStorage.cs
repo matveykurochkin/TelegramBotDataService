@@ -8,9 +8,9 @@ public class BotLogStorage
 {
     private static readonly NLog.ILogger Logger = LogManager.GetCurrentClassLogger();
 
-    private readonly FileStorageConfiguration _configuration;
+    private readonly PathConfiguration _configuration;
 
-    public BotLogStorage(FileStorageConfiguration configuration)
+    public BotLogStorage(PathConfiguration configuration)
     {
         _configuration = configuration;
     }

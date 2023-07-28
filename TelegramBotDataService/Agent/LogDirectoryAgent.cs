@@ -7,6 +7,12 @@ internal class LogDirectoryAgent
 {
     private static readonly NLog.ILogger Logger = LogManager.GetCurrentClassLogger();
 
+    /// <summary>
+    /// Метод, показывающий список доступных log-файлов, в зависимости от переданного параметра пути
+    /// </summary>
+    /// <param name="pathDirectory">путь до папки с log-файлами, которые необходимо получить</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public Task<List<string>> ListAvailableLogFile(string pathDirectory, CancellationToken cancellationToken)
     {
         Logger.Info("Start method: {0}", nameof(ListAvailableLogFile));
@@ -29,6 +35,14 @@ internal class LogDirectoryAgent
         return Task.FromResult(listLogFiles);
     }
 
+    /// <summary>
+    /// Метод, получающий конкретный log-файл, в зависимости от переданного параметра пути
+    /// если не передать дату, то по умолчанию дата будет сегодняшней 
+    /// </summary>
+    /// <param name="pathDirectory">путь до папки с log-файлами</param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="date">необязательный параметр, по умолчанию установленный на сегодняшний день</param>
+    /// <returns></returns>
     public Task<Stream?> LogFileByDate(string pathDirectory, CancellationToken cancellationToken, DateTime date = default)
     {
         if (date == default)
@@ -48,6 +62,18 @@ internal class LogDirectoryAgent
         return Task.FromResult(null as Stream);
     }
 
+    /// <summary>
+    /// Метод, получающий список log-файлов, в зависимости от переданного параметра пути
+    /// если не передать параметры дат, то за dateTo будет принята сегодняшняя дата,
+    /// а за dateFrom дата неделю назад,
+    /// если передать только dateFrom, то dateTo будет считать как дата неделю вперед 
+    /// если передать только dateTo, то dateFrom будет считать как дата неделю назад 
+    /// </summary>
+    /// <param name="pathDirectory"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="dateFrom"></param>
+    /// <param name="dateTo"></param>
+    /// <returns></returns>
     public Task<List<string>> ListAvailableLogFileByDate(string pathDirectory, CancellationToken cancellationToken, DateTime dateFrom = default, DateTime dateTo = default)
     {
         Logger.Info("Start method: {0}", nameof(ListAvailableLogFileByDate));

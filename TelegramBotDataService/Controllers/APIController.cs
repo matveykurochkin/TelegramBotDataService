@@ -21,6 +21,11 @@ public class APIController : ControllerBase
         _serviceLogStorage = serviceLogStorage;
     }
 
+    /// <summary>
+    /// Группа методов, использующихся для просмотра списка пользователей ботом и
+    /// log-файлов, созданных ботом
+    /// </summary>
+
     [HttpGet("GetLogFileByDate")]
     public async Task<IActionResult> GetByDate(DateTime date, CancellationToken cancellationToken)
     {
@@ -106,6 +111,10 @@ public class APIController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Группа методов, использующихся для просмтора log-файлов, созданных сервисом
+    /// </summary>
+    
     [Tags("Service Logs")]
     [HttpGet("GetServiceLogFileByDate")]
     public async Task<IActionResult> GetServiceByDate(DateTime dateTime, CancellationToken cancellationToken)
