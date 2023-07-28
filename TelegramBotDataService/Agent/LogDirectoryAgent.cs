@@ -8,34 +8,6 @@ internal class LogDirectoryAgent
     private static readonly NLog.ILogger Logger = LogManager.GetCurrentClassLogger();
 
     /// <summary>
-    /// Метод, показывающий список доступных log-файлов, в зависимости от переданного параметра пути
-    /// </summary>
-    /// <param name="pathDirectory">путь до папки с log-файлами, которые необходимо получить</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    public Task<List<string>> ListAvailableLogFile(string pathDirectory, CancellationToken cancellationToken)
-    {
-        Logger.Info("Start method: {0}", nameof(ListAvailableLogFile));
-
-        List<string> listLogFiles = new();
-
-        if (Directory.Exists(pathDirectory))
-        {
-            var files = Directory.GetFiles(pathDirectory);
-
-            listLogFiles = files
-                .Select(file => Regex.Match(file, @"\d{4}-\d{2}-\d{2}").Value)
-                .ToList();
-
-            Logger.Info("Files found {0}", pathDirectory);
-            return Task.FromResult(listLogFiles);
-        }
-
-        Logger.Info("Files not exist {0}", pathDirectory);
-        return Task.FromResult(listLogFiles);
-    }
-
-    /// <summary>
     /// Метод, получающий конкретный log-файл, в зависимости от переданного параметра пути
     /// если не передать дату, то по умолчанию дата будет сегодняшней 
     /// </summary>
@@ -65,9 +37,9 @@ internal class LogDirectoryAgent
     /// <summary>
     /// Метод, получающий список log-файлов, в зависимости от переданного параметра пути
     /// если не передать параметры дат, то за dateTo будет принята сегодняшняя дата,
-    /// а за dateFrom дата неделю назад,
-    /// если передать только dateFrom, то dateTo будет считать как дата неделю вперед 
-    /// если передать только dateTo, то dateFrom будет считать как дата неделю назад 
+    /// а за dateFrom дата 3 недели назад,
+    /// если передать только dateFrom, то dateTo будет считать как дата на 3 недели вперед 
+    /// если передать только dateTo, то dateFrom будет считать как дата на 3 недели назад 
     /// </summary>
     /// <param name="pathDirectory"></param>
     /// <param name="cancellationToken"></param>
@@ -81,18 +53,18 @@ internal class LogDirectoryAgent
         if (dateFrom == default && dateTo == default)
         {
             // Если пользователь не указал dateFrom и dateTo, устанавливаем их значения с недельным интервалом относительно текущей даты
-            dateFrom = DateTime.Now.Date.AddDays(-7);
+            dateFrom = DateTime.Now.Date.AddDays(-21);
             dateTo = DateTime.Now.Date;
         }
         else if (dateFrom == default)
         {
             // Если пользователь указал только dateTo, устанавливаем dateFrom на неделю назад относительно dateTo
-            dateFrom = dateTo.Date.AddDays(-7);
+            dateFrom = dateTo.Date.AddDays(-21);
         }
         else if (dateTo == default)
         {
             // Если пользователь указал только dateFrom, устанавливаем dateTo на неделю вперед относительно dateFrom
-            dateTo = dateFrom.Date.AddDays(7);
+            dateTo = dateFrom.Date.AddDays(21);
         }
 
         List<string> listLogFiles = new();

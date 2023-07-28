@@ -4,7 +4,7 @@ using TelegramBotDataService.Configuration;
 
 namespace TelegramBotDataService.Storage;
 
-public class BotLogStorage: ILogStorage
+public class BotLogStorage : ILogStorage
 {
     private static readonly NLog.ILogger Logger = LogManager.GetCurrentClassLogger();
 
