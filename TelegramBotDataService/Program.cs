@@ -22,22 +22,22 @@ builder.Host.ConfigureServices((hostBuilderContext, serviceCollection) =>
     serviceCollection.AddOptions<StorageConfiguration>()
         .Bind(hostBuilderContext.Configuration.GetSection("Storage"));
 
-    serviceCollection.AddSingleton<BotStorage>(sp =>
+    serviceCollection.AddSingleton<BotLogStorage>(sp =>
     {
         var options = sp.GetRequiredService<IOptions<StorageConfiguration>>();
         var storageConfiguration = options.Value;
 
-        var botStorage = new BotStorage(storageConfiguration.Directory!);
+        var botStorage = new BotLogStorage(storageConfiguration.Directory!);
 
         return botStorage;
     });
     
-    serviceCollection.AddSingleton<ServiceStorage>(sp =>
+    serviceCollection.AddSingleton<ServiceLogStorage>(sp =>
     {
         var options = sp.GetRequiredService<IOptions<StorageConfiguration>>();
         var storageConfiguration = options.Value;
 
-        var serviceStorage = new ServiceStorage(storageConfiguration.Directory!);
+        var serviceStorage = new ServiceLogStorage(storageConfiguration.Directory!);
 
         return serviceStorage;
     });
