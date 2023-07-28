@@ -16,12 +16,7 @@ public class ServiceLogStorage : ILogStorage
     {
         return new LogDirectoryAgent().LogFileByDate(_configuration.PathDirectoryToServiceLog!, cancellationToken, date);
     }
-    
-    public Task<List<string>> GetListAvailable(CancellationToken cancellationToken)
-    {
-        return new LogDirectoryAgent().ListAvailableLogFile(_configuration.PathDirectoryToServiceLog!, cancellationToken);
-    }
-    
+
     public Task<List<string>> GetListAvailableByDate(DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken)
     {
         return new LogDirectoryAgent().ListAvailableLogFileByDate(_configuration.PathDirectoryToServiceLog!, cancellationToken, dateFrom, dateTo);

@@ -11,13 +11,6 @@ internal interface ILogStorage
     public Task<Stream?> GetByDate(DateTime date, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Метод для получения списка доступных сервисных log-файлов
-    /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    public Task<List<string>> GetListAvailable(CancellationToken cancellationToken);
-
-    /// <summary>
     /// Метод возвращающий список доступных сервисных log-файлов, лежащих в промежутке указанных дат
     /// </summary>
     /// <param name="dateFrom">дата в формате yyyy-MM-dd</param>

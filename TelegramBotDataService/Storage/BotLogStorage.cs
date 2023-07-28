@@ -4,7 +4,7 @@ using TelegramBotDataService.Configuration;
 
 namespace TelegramBotDataService.Storage;
 
-public class BotLogStorage
+public class BotLogStorage: ILogStorage
 {
     private static readonly NLog.ILogger Logger = LogManager.GetCurrentClassLogger();
 
@@ -18,11 +18,6 @@ public class BotLogStorage
     public Task<Stream?> GetByDate(DateTime date, CancellationToken cancellationToken)
     {
         return new LogDirectoryAgent().LogFileByDate(_configuration.PathDirectoryToLog!, cancellationToken, date);
-    }
-
-    public Task<List<string>> GetListAvailable(CancellationToken cancellationToken)
-    {
-        return new LogDirectoryAgent().ListAvailableLogFile(_configuration.PathDirectoryToLog!, cancellationToken);
     }
 
     public Task<List<string>> GetListAvailableByDate(DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken)
