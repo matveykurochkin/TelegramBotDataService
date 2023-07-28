@@ -32,13 +32,38 @@ public class APIController : ControllerBase
                 Logger.Info("File not found");
                 return NotFound();
             }
-            
+
             Logger.Info("Method: {0} in API Controller completed successfully", nameof(GetLogFile));
             return new FileStreamResult(stream, "text/plain");
         }
         catch (Exception exception)
         {
             Logger.Error(exception, "Error in method: {0}", nameof(GetLogFile));
+            return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
+        }
+    }
+
+    [HttpGet("GetLogFileToday")]
+    public async Task<IActionResult> GetLogFileToday(CancellationToken cancellationToken)
+    {
+        Logger.Info("Start method: {0} in API Controller", nameof(GetLogFileToday));
+
+        try
+        {
+            var stream = await _storage.GetLogFileByDate(DateTime.Today.Date, cancellationToken);
+
+            if (stream == null)
+            {
+                Logger.Info("File not found");
+                return NotFound();
+            }
+
+            Logger.Info("Method: {0} in API Controller completed successfully", nameof(GetLogFileToday));
+            return new FileStreamResult(stream, "text/plain");
+        }
+        catch (Exception exception)
+        {
+            Logger.Error(exception, "Error in method: {0}", nameof(GetLogFileToday));
             return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
         }
     }
@@ -50,7 +75,7 @@ public class APIController : ControllerBase
         try
         {
             var fileList = await _storage.GetListAvailableLogFile(cancellationToken);
-            
+
             Logger.Info("Method: {0} in API Controller completed successfully", nameof(GetListLogFile));
             return new JsonResult(fileList);
         }
@@ -74,7 +99,7 @@ public class APIController : ControllerBase
             }
 
             var fileListByDate = await _storage.GetListAvailableLogFileByDate(dateFrom, dateTo, cancellationToken);
-            
+
             Logger.Info("Method: {0} in API Controller completed successfully", nameof(GetListLogFileByDate));
             return new JsonResult(fileListByDate);
         }
