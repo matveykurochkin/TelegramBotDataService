@@ -25,7 +25,6 @@ public class APIController : ControllerBase
     /// Группа методов, использующихся для просмотра списка пользователей ботом и
     /// log-файлов, созданных ботом
     /// </summary>
-
     [HttpGet("GetLogFileByDate")]
     public async Task<IActionResult> GetByDate(DateTime date, CancellationToken cancellationToken)
     {
@@ -46,24 +45,6 @@ public class APIController : ControllerBase
         catch (Exception exception)
         {
             Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetByDate), nameof(APIController));
-            return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
-        }
-    }
-
-    [HttpPost("GetListAvailableLogFile")]
-    public async Task<IActionResult> GetListAvailable(CancellationToken cancellationToken)
-    {
-        Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetListAvailable), nameof(APIController));
-        try
-        {
-            var fileList = await _botLogStorage.GetListAvailable(cancellationToken);
-
-            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetListAvailable), nameof(APIController));
-            return new JsonResult(fileList);
-        }
-        catch (Exception exception)
-        {
-            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetListAvailable), nameof(APIController));
             return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
         }
     }
@@ -114,12 +95,11 @@ public class APIController : ControllerBase
     /// <summary>
     /// Группа методов, использующихся для просмтора log-файлов, созданных сервисом
     /// </summary>
-    
     [Tags("Service Logs")]
     [HttpGet("GetServiceLogFileByDate")]
     public async Task<IActionResult> GetServiceByDate(DateTime dateTime, CancellationToken cancellationToken)
     {
-        Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetByDate), nameof(APIController));
+        Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetServiceByDate), nameof(APIController));
 
         try
         {
@@ -131,31 +111,12 @@ public class APIController : ControllerBase
                 return NotFound();
             }
 
-            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetByDate), nameof(APIController));
+            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetServiceByDate), nameof(APIController));
             return new FileStreamResult(stream, "text/plain");
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetByDate), nameof(APIController));
-            return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
-        }
-    }
-
-    [Tags("Service Logs")]
-    [HttpPost("GetServiceListAvailableLogFile")]
-    public async Task<IActionResult> GetServiceListAvailable(CancellationToken cancellationToken)
-    {
-        Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetListAvailable), nameof(APIController));
-        try
-        {
-            var fileList = await _serviceLogStorage.GetListAvailable(cancellationToken);
-
-            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetListAvailable), nameof(APIController));
-            return new JsonResult(fileList);
-        }
-        catch (Exception exception)
-        {
-            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetListAvailable), nameof(APIController));
+            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetServiceByDate), nameof(APIController));
             return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
         }
     }
@@ -164,17 +125,17 @@ public class APIController : ControllerBase
     [HttpPost("GetServiceListAvailableLogFileByDate")]
     public async Task<IActionResult> GetServiceListAvailableByDate(DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken)
     {
-        Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetListAvailableByDate), nameof(APIController));
+        Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetServiceListAvailableByDate), nameof(APIController));
         try
         {
             var fileListByDate = await _serviceLogStorage.GetListAvailableByDate(dateFrom, dateTo, cancellationToken);
 
-            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetListAvailableByDate), nameof(APIController));
+            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetServiceListAvailableByDate), nameof(APIController));
             return new JsonResult(fileListByDate);
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetListAvailableByDate), nameof(APIController));
+            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetServiceListAvailableByDate), nameof(APIController));
             return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
         }
     }
