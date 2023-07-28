@@ -4,7 +4,7 @@ using NLog.Web;
 using TelegramBotDataService.Configuration;
 using TelegramBotDataService.Storage;
 
-const string appVersion = "v1.2";
+const string appVersion = "v1.3";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,14 +22,24 @@ builder.Host.ConfigureServices((hostBuilderContext, serviceCollection) =>
     serviceCollection.AddOptions<StorageConfiguration>()
         .Bind(hostBuilderContext.Configuration.GetSection("Storage"));
 
-    serviceCollection.AddSingleton<FileStorage>(sp =>
+    serviceCollection.AddSingleton<BotStorage>(sp =>
     {
         var options = sp.GetRequiredService<IOptions<StorageConfiguration>>();
         var storageConfiguration = options.Value;
 
-        var fileStorage = new FileStorage(storageConfiguration.Directory!);
+        var botStorage = new BotStorage(storageConfiguration.Directory!);
 
-        return fileStorage;
+        return botStorage;
+    });
+    
+    serviceCollection.AddSingleton<ServiceStorage>(sp =>
+    {
+        var options = sp.GetRequiredService<IOptions<StorageConfiguration>>();
+        var storageConfiguration = options.Value;
+
+        var serviceStorage = new ServiceStorage(storageConfiguration.Directory!);
+
+        return serviceStorage;
     });
 });
 
