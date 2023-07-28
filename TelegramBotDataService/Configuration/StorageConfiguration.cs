@@ -8,8 +8,6 @@
 public class StorageConfiguration
 {
     public PathConfiguration? Directory { get; init; }
-    
-    //TODO: сделать метод проверяющий данные на правильность
 }
 /// <summary>
 /// Класс имеющий 3 свойства, которые представляю собой:
