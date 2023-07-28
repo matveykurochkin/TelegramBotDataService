@@ -34,3 +34,7 @@ Telegram Bot Data Service - это сервис RESTful API, который об
 ```bash 
  "PathDirectoryToListUsers": "path\\to\\your\\list\\users\\file"
 ```
+
+```bash 
+ "PathDirectoryToServiceLog": "path\\to\\your\\service\\log\\file"
+```
