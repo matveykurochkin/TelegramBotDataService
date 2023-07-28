@@ -158,12 +158,6 @@ public class APIController : ControllerBase
         Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetListAvailableByDate), nameof(APIController));
         try
         {
-            if (dateFrom > dateTo)
-            {
-                Logger.Trace("dateFrom larger dateTo");
-                return BadRequest();
-            }
-
             var fileListByDate = await _serviceLogStorage.GetListAvailableByDate(dateFrom, dateTo, cancellationToken);
 
             Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetListAvailableByDate), nameof(APIController));
