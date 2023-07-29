@@ -97,13 +97,13 @@ public class APIController : ControllerBase
     /// </summary>
     [Tags("Service Logs")]
     [HttpGet("GetServiceLogFileByDate")]
-    public async Task<IActionResult> GetServiceByDate(DateTime dateTime, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetServiceByDate(DateTime date, CancellationToken cancellationToken)
     {
         Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetServiceByDate), nameof(APIController));
 
         try
         {
-            var stream = await _serviceLogStorage.GetByDate(dateTime, cancellationToken);
+            var stream = await _serviceLogStorage.GetByDate(date, cancellationToken);
 
             if (stream == null)
             {

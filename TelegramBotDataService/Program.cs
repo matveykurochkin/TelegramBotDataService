@@ -20,7 +20,8 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 builder.Host.ConfigureServices((hostBuilderContext, serviceCollection) =>
 {
     serviceCollection.AddOptions<StorageConfiguration>()
-        .Bind(hostBuilderContext.Configuration.GetSection("Storage"));
+        .Bind(hostBuilderContext.Configuration.GetSection("Storage"))
+        .Validate(storageConfiguration => storageConfiguration.ValidateConfiguration());
 
     serviceCollection.AddSingleton<BotLogStorage>(sp =>
     {
@@ -31,7 +32,7 @@ builder.Host.ConfigureServices((hostBuilderContext, serviceCollection) =>
 
         return botStorage;
     });
-    
+
     serviceCollection.AddSingleton<ServiceLogStorage>(sp =>
     {
         var options = sp.GetRequiredService<IOptions<StorageConfiguration>>();
@@ -50,9 +51,9 @@ builder.Services.AddSwaggerGen(settings =>
 {
     settings.SwaggerDoc($"{appVersion}", new OpenApiInfo
     {
-        Title = "Schedule Bot Data Service", 
-        Version = $"{appVersion}", 
-        Description = "Schedule Bot Data Service is a RESTful API service that provides interaction with a telegram bot and provides an opportunity to receive log files created by the bot during its operation.", 
+        Title = "Schedule Bot Data Service",
+        Version = $"{appVersion}",
+        Description = "Schedule Bot Data Service is a RESTful API service that provides interaction with a telegram bot and provides an opportunity to receive log files created by the bot during its operation.",
         Contact = new OpenApiContact
         {
             Name = "Matvey Kurochkin",
@@ -67,10 +68,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(settings =>
-    {
-        settings.SwaggerEndpoint($"/swagger/{appVersion}/swagger.json", $"Schedule Bot Data Service API {appVersion}");
-    });
+    app.UseSwaggerUI(settings => { settings.SwaggerEndpoint($"/swagger/{appVersion}/swagger.json", $"Schedule Bot Data Service API {appVersion}"); });
 }
 
 app.UseHttpsRedirection();
