@@ -4,7 +4,7 @@ using NLog.Web;
 using TelegramBotDataService.Configuration;
 using TelegramBotDataService.Storage;
 
-const string appVersion = "v1.3";
+const string appVersion = "v1.3.1";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
