@@ -83,6 +83,7 @@ internal class LogDirectoryAgent
                         return currentDate >= dateFrom && currentDate <= dateTo;
                     return false;
                 })
+                .OrderBy(_ => files)
                 .ToList();
 
             Logger.Info("Files in the specified range are found {0}", pathDirectory);
