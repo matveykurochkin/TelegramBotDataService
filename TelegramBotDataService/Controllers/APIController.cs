@@ -4,7 +4,7 @@ using TelegramBotDataService.Storage;
 
 namespace TelegramBotDataService.Controllers;
 
-[Tags("Schedule Bot Logs")]
+[Tags("Schedule Bot Logs & Users from File Storage")]
 [Route("api")]
 [ApiController]
 // ReSharper disable once InconsistentNaming
@@ -12,13 +12,11 @@ public class APIController : ControllerBase
 {
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-    private readonly BotLogStorage _botLogStorage;
-    private readonly ServiceLogStorage _serviceLogStorage;
+    private readonly BotDataStorage _botDataStorage;
 
-    public APIController(BotLogStorage botLogStorage, ServiceLogStorage serviceLogStorage)
+    public APIController(BotDataStorage botDataStorage)
     {
-        _botLogStorage = botLogStorage;
-        _serviceLogStorage = serviceLogStorage;
+        _botDataStorage = botDataStorage;
     }
 
     /// <summary>
@@ -31,7 +29,7 @@ public class APIController : ControllerBase
         Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetByDate), nameof(APIController));
         try
         {
-            var stream = await _botLogStorage.GetByDate(date, cancellationToken);
+            var stream = await _botDataStorage.GetByDate(date, cancellationToken);
 
             if (stream == null)
             {
@@ -55,7 +53,7 @@ public class APIController : ControllerBase
         Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetListAvailableByDate), nameof(APIController));
         try
         {
-            var fileListByDate = await _botLogStorage.GetListAvailableByDate(dateFrom, dateTo, cancellationToken);
+            var fileListByDate = await _botDataStorage.GetListAvailableByDate(dateFrom, dateTo, cancellationToken);
 
             Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetListAvailableByDate), nameof(APIController));
             return new JsonResult(fileListByDate);
@@ -67,14 +65,13 @@ public class APIController : ControllerBase
         }
     }
 
-    [Tags("Schedule Bot Users")]
     [HttpGet("GetListUsers")]
     public async Task<IActionResult> GetListUsers(CancellationToken cancellationToken)
     {
         Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetListUsers), nameof(APIController));
         try
         {
-            var stream = await _botLogStorage.GetListUsers(cancellationToken);
+            var stream = await _botDataStorage.GetListUsers(cancellationToken);
 
             if (stream == null)
             {
@@ -92,50 +89,74 @@ public class APIController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Группа методов, использующихся для просмтора log-файлов, созданных сервисом
-    /// </summary>
-    [Tags("Service Logs")]
-    [HttpGet("GetServiceLogFileByDate")]
-    public async Task<IActionResult> GetServiceByDate(DateTime date, CancellationToken cancellationToken)
+    [Tags("Schedule Bot Logs & Users from Data Base")]
+    [HttpGet("GetListUsersFromDB")]
+    public async Task<IActionResult> GetListUsersFromDb(CancellationToken cancellationToken)
     {
-        Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetServiceByDate), nameof(APIController));
-
         try
         {
-            var stream = await _serviceLogStorage.GetByDate(date, cancellationToken);
+            var data = await _botDataStorage.GetListUsersFromDb(cancellationToken);
 
-            if (stream == null)
+            if (data == null)
             {
-                Logger.Info("File not found");
+                Logger.Info("Users not found");
                 return NotFound();
             }
 
-            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetServiceByDate), nameof(APIController));
-            return new FileStreamResult(stream, "text/plain");
+            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetListUsersFromDb), nameof(APIController));
+            return Ok(data.Select(s => s.TrimEnd('\r', '\n')).ToList());
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetServiceByDate), nameof(APIController));
+            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetListUsersFromDb), nameof(APIController));
             return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
         }
     }
-
-    [Tags("Service Logs")]
-    [HttpPost("GetServiceListAvailableLogFileByDate")]
-    public async Task<IActionResult> GetServiceListAvailableByDate(DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken)
+    
+    [Tags("Schedule Bot Logs & Users from Data Base")]
+    [HttpGet("GetCountMessageFromDb")]
+    public async Task<IActionResult> GetCountMessageFromDb(CancellationToken cancellationToken)
     {
-        Logger.Info("Start method: {0} in API Controller: {1}", nameof(GetServiceListAvailableByDate), nameof(APIController));
         try
         {
-            var fileListByDate = await _serviceLogStorage.GetListAvailableByDate(dateFrom, dateTo, cancellationToken);
+            var data = await _botDataStorage.GetCountMessageFromDb(cancellationToken);
 
-            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetServiceListAvailableByDate), nameof(APIController));
-            return new JsonResult(fileListByDate);
+            if (data == -1)
+            {
+                Logger.Info("Count messages not found");
+                return NotFound();
+            }
+
+            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetCountMessageFromDb), nameof(APIController));
+            return Ok(data);
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetServiceListAvailableByDate), nameof(APIController));
+            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetCountMessageFromDb), nameof(APIController));
+            return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
+        }
+    }
+    
+    [Tags("Schedule Bot Logs & Users from Data Base")]
+    [HttpGet("GetLastUserFromDb")]
+    public async Task<IActionResult> GetLastUserFromDb(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await _botDataStorage.GetLastUserFromDb(cancellationToken);
+
+            if (data == null)
+            {
+                Logger.Info("Last user not found");
+                return NotFound();
+            }
+
+            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetLastUserFromDb), nameof(APIController));
+            return Ok(data);
+        }
+        catch (Exception exception)
+        {
+            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetLastUserFromDb), nameof(APIController));
             return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
         }
     }
