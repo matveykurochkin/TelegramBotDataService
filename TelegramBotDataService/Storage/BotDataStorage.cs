@@ -2,6 +2,7 @@
 using NLog;
 using Npgsql;
 using TelegramBotDataService.Configuration;
+using TelegramBotDataService.Models;
 
 namespace TelegramBotDataService.Storage;
 
@@ -127,11 +128,11 @@ public class BotDataStorage
     /// </summary>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список строк, представляющих пользователей, или null в случае ошибки</returns>
-    public async Task<List<string>?> GetListUsersFromDb(CancellationToken cancellationToken)
+    public async Task<List<User>> GetListUsersFromDb(CancellationToken cancellationToken)
     {
         try
         {
-            if (!_configuration.IsWorkWithDb()) return null;
+            if (!_configuration.IsWorkWithDb()) return new List<User>();
 
             await using var connection = new NpgsqlConnection(_configuration.ConnectionString);
             await connection.OpenAsync(cancellationToken);
@@ -141,16 +142,22 @@ public class BotDataStorage
             await using var command = new NpgsqlCommand(selectFromBotUsers, connection);
             await using var reader = command.ExecuteReader();
 
-            var listOfBotUsers = new List<string>();
+            var listOfBotUsers = new List<User>();
             while (await reader.ReadAsync(cancellationToken))
-                listOfBotUsers.Add($"{reader["name"]} {reader["surname"]} ({reader["username"]}) {reader["id"]}" + Environment.NewLine);
+                listOfBotUsers.Add(new User
+                {
+                    Name = reader["name"].ToString(),
+                    SurName = reader["surname"].ToString(),
+                    UserName = reader["username"].ToString(),
+                    Id = reader["id"].ToString()
+                });
 
             return listOfBotUsers;
         }
         catch (Exception ex)
         {
             Logger.Error("Error view users list from DB. {method}: {error}", nameof(GetListUsersFromDb), ex);
-            return null;
+            return new List<User>();
         }
     }
 
@@ -159,11 +166,12 @@ public class BotDataStorage
     /// </summary>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Количество сообщений или -1 в случае ошибки</returns>
-    public async Task<long> GetCountMessageFromDb(CancellationToken cancellationToken)
+    public async Task<MessagesCount> GetCountMessageFromDb(CancellationToken cancellationToken)
     {
         try
         {
-            if (!_configuration.IsWorkWithDb()) return -1;
+            if (!_configuration.IsWorkWithDb())
+                return new MessagesCount { CountOfMessages = 0 };
 
             await using var connection = new NpgsqlConnection(_configuration.ConnectionString);
             await connection.OpenAsync(cancellationToken);
@@ -173,21 +181,22 @@ public class BotDataStorage
             await using var commandCountMessages = new NpgsqlCommand(countMessagesFromDb, connection);
             var countMessage = (long)(await commandCountMessages.ExecuteScalarAsync(cancellationToken))!;
 
-            return countMessage;
+            return new MessagesCount { CountOfMessages = countMessage };
         }
         catch (Exception ex)
         {
-            Logger.Error("Error view count messages from DB. {method}: {error}", nameof(GetListUsersFromDb), ex);
-            return -1;
+            Logger.Error("Error view count messages from DB. {method}: {error}", nameof(GetCountMessageFromDb), ex);
+            return new MessagesCount { CountOfMessages = 0 };
         }
     }
+
 
     /// <summary>
     /// Получает информацию о последнем пользователе из базы данных и возвращает ее в виде строки
     /// </summary>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Строка, представляющая информацию о последнем пользователе, или "No data available", если нет данных, или null в случае ошибки</returns>
-    public async Task<string?> GetLastUserFromDb(CancellationToken cancellationToken)
+    public async Task<User?> GetLastUserFromDb(CancellationToken cancellationToken)
     {
         try
         {
@@ -196,19 +205,46 @@ public class BotDataStorage
             await using var connection = new NpgsqlConnection(_configuration.ConnectionString);
             await connection.OpenAsync(cancellationToken);
 
-            const string selectLastUserFromDb = "SELECT * FROM botusers ORDER BY ctid DESC LIMIT 1;";
+            const string selectLastUserFromDb = "SELECT userid FROM messages ORDER BY id DESC LIMIT 1;";
 
-            await using var command = new NpgsqlCommand(selectLastUserFromDb, connection);
+            await using var commandSelectLastUser = new NpgsqlCommand(selectLastUserFromDb, connection);
 
-            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            await using var reader = await commandSelectLastUser.ExecuteReaderAsync(cancellationToken);
 
-            if (!reader.HasRows || !await reader.ReadAsync(cancellationToken)) return "No data available";
+            if (!reader.HasRows || !await reader.ReadAsync(cancellationToken))
+            {
+                // No data available
+                return null;
+            }
 
-            return $"{reader["name"]} {reader["surname"]} ({reader["username"]}) {reader["id"]}";
+            // Retrieve the user ID from the first query
+            var userId = reader.GetInt64(reader.GetOrdinal("userid"));
+
+            await using var connectionUserById = new NpgsqlConnection(_configuration.ConnectionString);
+            await connectionUserById.OpenAsync(cancellationToken);
+
+            var selectUserById = $"SELECT * FROM botusers where id = {userId};";
+
+            await using var commandSelectUserById = new NpgsqlCommand(selectUserById, connectionUserById);
+            await using var readerSelectUserById = await commandSelectUserById.ExecuteReaderAsync(cancellationToken);
+
+            if (!readerSelectUserById.HasRows || !await readerSelectUserById.ReadAsync(cancellationToken))
+            {
+                // No data available for the second query
+                return null;
+            }
+
+            return new User
+            {
+                Name = readerSelectUserById["name"].ToString(),
+                SurName = readerSelectUserById["surname"].ToString(),
+                UserName = readerSelectUserById["username"].ToString(),
+                Id = readerSelectUserById["id"].ToString()
+            };
         }
         catch (Exception ex)
         {
-            Logger.Error("Error view last user from DB. {method}: {error}", nameof(GetListUsersFromDb), ex);
+            Logger.Error("Ошибка при просмотре последнего пользователя из базы данных. Метод: {method}, Ошибка: {error}", nameof(GetLastUserFromDb), ex);
             return null;
         }
     }

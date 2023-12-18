@@ -4,7 +4,6 @@ using TelegramBotDataService.Storage;
 
 namespace TelegramBotDataService.Controllers;
 
-[Tags("Schedule Bot Logs & Users from File Storage")]
 [Route("api")]
 [ApiController]
 // ReSharper disable once InconsistentNaming
@@ -23,6 +22,7 @@ public class APIController : ControllerBase
     /// Группа методов, использующихся для просмотра списка пользователей ботом и
     /// log-файлов, созданных ботом
     /// </summary>
+    [Tags("Schedule Bot Logs")]
     [HttpGet("GetLogFileByDate")]
     public async Task<IActionResult> GetByDate(DateTime date, CancellationToken cancellationToken)
     {
@@ -46,7 +46,8 @@ public class APIController : ControllerBase
             return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
         }
     }
-
+    
+    [Tags("Schedule Bot Logs")]
     [HttpPost("GetListAvailableLogFileByDate")]
     public async Task<IActionResult> GetListAvailableByDate(DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken)
     {
@@ -64,7 +65,8 @@ public class APIController : ControllerBase
             return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
         }
     }
-
+    
+    [Tags("Schedule Bot Users from File Storage")]
     [HttpGet("GetListUsers")]
     public async Task<IActionResult> GetListUsers(CancellationToken cancellationToken)
     {
@@ -89,7 +91,7 @@ public class APIController : ControllerBase
         }
     }
 
-    [Tags("Schedule Bot Logs & Users from Data Base")]
+    [Tags("Schedule Bot Users from Data Base")]
     [HttpGet("GetListUsersFromDB")]
     public async Task<IActionResult> GetListUsersFromDb(CancellationToken cancellationToken)
     {
@@ -104,7 +106,7 @@ public class APIController : ControllerBase
             }
 
             Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetListUsersFromDb), nameof(APIController));
-            return Ok(data.Select(s => s.TrimEnd('\r', '\n')).ToList());
+            return Ok(data);
         }
         catch (Exception exception)
         {
@@ -113,7 +115,7 @@ public class APIController : ControllerBase
         }
     }
     
-    [Tags("Schedule Bot Logs & Users from Data Base")]
+    [Tags("Schedule Bot Users from Data Base")]
     [HttpGet("GetCountMessageFromDb")]
     public async Task<IActionResult> GetCountMessageFromDb(CancellationToken cancellationToken)
     {
@@ -121,7 +123,7 @@ public class APIController : ControllerBase
         {
             var data = await _botDataStorage.GetCountMessageFromDb(cancellationToken);
 
-            if (data == -1)
+            if (data.CountOfMessages == 0)
             {
                 Logger.Info("Count messages not found");
                 return NotFound();
@@ -137,7 +139,7 @@ public class APIController : ControllerBase
         }
     }
     
-    [Tags("Schedule Bot Logs & Users from Data Base")]
+    [Tags("Schedule Bot Users from Data Base")]
     [HttpGet("GetLastUserFromDb")]
     public async Task<IActionResult> GetLastUserFromDb(CancellationToken cancellationToken)
     {
