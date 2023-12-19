@@ -248,4 +248,87 @@ public class BotDataStorage
             return null;
         }
     }
+
+    /// <summary>
+    /// Метод, который позволяет узнать пользователя, который больше всего писал боту
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<User?> GetMostUserFromDb(CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (!_configuration.IsWorkWithDb()) return null;
+
+            await using var connection = new NpgsqlConnection(_configuration.ConnectionString);
+            await connection.OpenAsync(cancellationToken);
+
+            const string selectMostUserFromDb =
+                "SELECT bu.id AS botuser_id, bu.name, bu.surname, bu.username " +
+                "FROM botusers bu " +
+                "JOIN (" +
+                "SELECT userid, COUNT(*) AS count " +
+                "FROM messages " +
+                "GROUP BY userid " +
+                "ORDER BY count DESC " +
+                "LIMIT 1" +
+                ") m ON bu.id = m.userid;";
+
+            await using var commandSelectMostUser = new NpgsqlCommand(selectMostUserFromDb, connection);
+
+            await using var reader = await commandSelectMostUser.ExecuteReaderAsync(cancellationToken);
+
+            if (!reader.HasRows || !await reader.ReadAsync(cancellationToken))
+                return null;
+
+            return new User
+            {
+                Name = reader["name"].ToString(),
+                SurName = reader["surname"].ToString(),
+                UserName = reader["username"].ToString(),
+                Id = reader["botuser_id"].ToString()
+            };
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Ошибка при просмотре пользователя, который больше всего писал боту из базы данных. Метод: {method}, Ошибка: {error}", nameof(GetMostUserFromDb), ex);
+            return null;
+        }
+    }
+    
+    /// <summary>
+    /// Метод, для просмотра самого большого колдичества сообщений, которые были написаны боту
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<MostMessages?> GetMostMessagesFromDb(CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (!_configuration.IsWorkWithDb()) return null;
+
+            await using var connection = new NpgsqlConnection(_configuration.ConnectionString);
+            await connection.OpenAsync(cancellationToken);
+
+            const string selectMostMessagesFromDb = "SELECT text, COUNT(*) AS count FROM messages GROUP BY text ORDER BY count DESC LIMIT 1;";
+
+            await using var commandSelectMostMessages = new NpgsqlCommand(selectMostMessagesFromDb, connection);
+
+            await using var reader = await commandSelectMostMessages.ExecuteReaderAsync(cancellationToken);
+
+            if (!reader.HasRows || !await reader.ReadAsync(cancellationToken))
+                return null;
+
+            return new MostMessages
+            {
+                MessageText = reader["text"].ToString(),
+                MessageCount = reader["count"].ToString()
+            };
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Ошибка при просмотре самого большого количества сообщений, которые были написаны боту из базы данных. Метод: {method}, Ошибка: {error}", nameof(GetMostMessagesFromDb), ex);
+            return null;
+        }
+    }
 }

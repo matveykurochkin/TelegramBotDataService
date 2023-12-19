@@ -162,4 +162,52 @@ public class APIController : ControllerBase
             return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
         }
     }
+    
+    [Tags("Schedule Bot Users from Data Base")]
+    [HttpGet("GetMostUserFromDb")]
+    public async Task<IActionResult> GetMostUserFromDb(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await _botDataStorage.GetMostUserFromDb(cancellationToken);
+
+            if (data == null)
+            {
+                Logger.Info("Most user not found");
+                return NotFound();
+            }
+
+            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetMostUserFromDb), nameof(APIController));
+            return Ok(data);
+        }
+        catch (Exception exception)
+        {
+            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetMostUserFromDb), nameof(APIController));
+            return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
+        }
+    }
+    
+    [Tags("Schedule Bot Users from Data Base")]
+    [HttpGet("GetMostMessagesFromDb")]
+    public async Task<IActionResult> GetMostMessagesFromDb(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await _botDataStorage.GetMostMessagesFromDb(cancellationToken);
+
+            if (data == null)
+            {
+                Logger.Info("Most messages not found");
+                return NotFound();
+            }
+
+            Logger.Info("Method: {0} in API Controller: {1} completed successfully", nameof(GetMostMessagesFromDb), nameof(APIController));
+            return Ok(data);
+        }
+        catch (Exception exception)
+        {
+            Logger.Error(exception, "Error in method: {0} in API Controller: {1}", nameof(GetMostMessagesFromDb), nameof(APIController));
+            return await Task.FromResult<IActionResult>(StatusCode(500, $"An error occurred: {exception.Message}"));
+        }
+    }
 }
